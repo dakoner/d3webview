@@ -19,101 +19,82 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 
 
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 public class WebServer extends Thread {
-	private static final String SERVER_NAME = "WebServer";
-	private static final String FILE_PATTERN = "*";
+    private static final String FILE_PATTERN = "*";
+    public static final int SERVER_PORT = 8080;
 
-	private boolean isRunning = false;
-	private Context context = null;
-	private int serverPort = 0;
-	
-	private BasicHttpProcessor httpproc = null;
-	private BasicHttpContext httpContext = null;
-	private HttpService httpService = null;
-	private HttpRequestHandlerRegistry registry = null;
+    private boolean isRunning = false;
+    private Context context = null;
 
-	public WebServer(Context context){
-		super(SERVER_NAME);
-		
-		this.setContext(context);
+    private BasicHttpProcessor httpproc = null;
+    private BasicHttpContext httpContext = null;
+    private HttpService httpService = null;
+    private HttpRequestHandlerRegistry registry = null;
 
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-		
-		serverPort = Integer.parseInt(pref.getString(Constants.PREF_SERVER_PORT, "" + Constants.DEFAULT_SERVER_PORT));
-		httpproc = new BasicHttpProcessor();
-		httpContext = new BasicHttpContext();
-		
+    public WebServer(Context context){
+        super("com.google.apps.android.d3webview.WebServer");
+        this.context = context;
+
+        httpproc = new BasicHttpProcessor();
+        httpContext = new BasicHttpContext();
+
         httpproc.addInterceptor(new ResponseDate());
         httpproc.addInterceptor(new ResponseServer());
         httpproc.addInterceptor(new ResponseContent());
         httpproc.addInterceptor(new ResponseConnControl());
 
-        httpService = new HttpService(httpproc, 
-        									new DefaultConnectionReuseStrategy(),
-        									new DefaultHttpResponseFactory());
+        httpService = new HttpService(httpproc,
+                new DefaultConnectionReuseStrategy(),
+                new DefaultHttpResponseFactory());
 
-		
+
         registry = new HttpRequestHandlerRegistry();
-        
+
         registry.register(FILE_PATTERN, new FileHandler(context));
-        
+
         httpService.setHandlerResolver(registry);
-	}
-	
-	@Override
-	public void run() {
-		super.run();
-		
-		try {
-			ServerSocket serverSocket = new ServerSocket(serverPort);
-			
-			serverSocket.setReuseAddress(true);
-            
-			while(isRunning){
-				try {
-					final Socket socket = serverSocket.accept();
-					
-					DefaultHttpServerConnection serverConnection = new DefaultHttpServerConnection();
-		        	
-					serverConnection.bind(socket, new BasicHttpParams());
-					
-					httpService.handleRequest(serverConnection, httpContext);
-					
-					serverConnection.shutdown();
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (HttpException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			serverSocket.close();
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public synchronized void startThread() {
-		isRunning = true;
-		
-		super.start();
-	}
-	
-	public synchronized void stopThread(){
-		isRunning = false;
-	}
+    }
 
-	public void setContext(Context context) {
-		this.context = context;
-	}
+    @Override
+    public void run() {
+        super.run();
 
-	public Context getContext() {
-		return context;
-	}
+        try {
+            ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
+            serverSocket.setReuseAddress(true);
+
+            while(isRunning){
+                try {
+                    final Socket socket = serverSocket.accept();
+
+                    DefaultHttpServerConnection serverConnection = new DefaultHttpServerConnection();
+
+                    serverConnection.bind(socket, new BasicHttpParams());
+
+                    httpService.handleRequest(serverConnection, httpContext);
+
+                    serverConnection.shutdown();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (HttpException e) {
+                    e.printStackTrace();
+                }
+            }
+            serverSocket.close();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized void startThread() {
+        isRunning = true;
+        super.start();
+    }
+
+    public synchronized void stopThread(){
+        isRunning = false;
+    }
 }
