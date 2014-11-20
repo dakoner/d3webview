@@ -4,5 +4,10 @@
     <string name="app_name">D3WebView</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+    <string name="dirlisting">dirlisting</string>
+    <string name="home">home</string>
+    <string name="messagesend">messagesend</string>
+    <string name="nodirlisting">nodirlisting</string>
+    <string name="notfound">notfound</string>
+    <string name="service_started">Service Started</string>
 </resources>
