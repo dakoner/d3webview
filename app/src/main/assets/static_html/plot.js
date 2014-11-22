@@ -41,25 +41,35 @@ d3.json("example_weather.json", function(error, data) {
     x.domain(d3.extent(data, function(d) { return d.date; }));
     y.domain(d3.extent(data, function(d) { return d.outside_temp; }));
 
-    svg.append("g")
-	.attr("class", "x axis")
-	.attr("transform", "translate(0," + height + ")")
-	.call(xAxis)
-    .selectAll("text")
-      .style("text-anchor", "end")
-      .attr("dx", "-.8em")
-      .attr("dy", ".15em")
-      .attr("transform", function(d) {
-        return "rotate(-90)"
-      }
-    );
+    var dataNest = d3.nest()
+        .key(function(d) { return d.uuid; })
+        .entries(data);
+
+    var color = d3.scale.category10();
+
+    dataNest.forEach(function(d) {
+        svg.append("path")
+            .attr("class", "line")
+            .style("stroke", function() {
+                            return d.color = color(d.key); })
+            .attr("d", line(d.values));
+    });
+
+	svg.append("g")
+    	.attr("class", "x axis")
+    	.attr("transform", "translate(0," + height + ")")
+    	.call(xAxis)
+        .selectAll("text")
+          .style("text-anchor", "end")
+          .attr("dx", "-.8em")
+          .attr("dy", ".15em")
+          .attr("transform", function(d) {
+            return "rotate(-90)"
+          }
+        );
 
     svg.append("g")
-	.attr("class", "y axis")
-	.call(yAxis)
+        .attr("class", "y axis")
+        .call(yAxis)
 
-    svg.append("path")
-	.datum(data)
-	.attr("class", "line")
-	.attr("d", line);
 });
