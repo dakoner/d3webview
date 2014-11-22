@@ -1,6 +1,4 @@
-var today = new Date();
-
-var margin = {top: 25, right: 15, bottom: 80, left: 25},
+var margin = {top: 25, right: 15, bottom: 80, left: 30},
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 
@@ -33,7 +31,6 @@ var svg = d3.select("body").append("svg")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 d3.json("file:///android_asset/static_html/example_weather.json", function(error, data) {
-
     if(error) {return console.warn(error)};
     data = data.weatherdata;
     data.forEach(function(d) {
