@@ -1,4 +1,4 @@
-var margin = {top: 25, right: 15, bottom: 80, left: 30},
+var margin = {top: 25, right: 15, bottom: 120, left: 30},
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 
@@ -22,7 +22,10 @@ var yAxis = d3.svg.axis()
 
 var line = d3.svg.line()
     .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.outside_temp); });
+    .y(function(d) { return y(d.outside_temp); })
+    .defined(function(d) {
+       return d.date != null && d.date != undefined &&
+              d.outside_temp != null && d.outside_temp != undefined && !isNaN(d.outside_temp)});
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -30,12 +33,17 @@ var svg = d3.select("body").append("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("example_weather.json", function(error, data) {
+d3.json("foo.json", function(error, data) {
     if(error) {return console.warn(error)};
-    data = data.weatherdata;
-    data.forEach(function(d) {
-	d.date = parseDate(d.created_at);
-	d.outside_temp = parseFloat(d.outside_temp);
+      data = data.weatherdata;
+      data = data.filter(function(d) {
+	    d.date = parseDate(d.created_at);
+	    d.outside_temp = parseFloat(d.outside_temp);
+	    if (d.outside_temp > 90) return false;
+        //if (d.us_units == 0) {
+	    //    d.outside_temp = d.outside_temp * 9/5. + 32.
+	    //}
+	    return true;
     });
 
     x.domain(d3.extent(data, function(d) { return d.date; }));
@@ -46,13 +54,22 @@ d3.json("example_weather.json", function(error, data) {
         .entries(data);
 
     var color = d3.scale.category10();
+    legendSpace = width/dataNest.length; // spacing for legend
 
-    dataNest.forEach(function(d) {
+    dataNest.forEach(function(d, i) {
         svg.append("path")
             .attr("class", "line")
             .style("stroke", function() {
                             return d.color = color(d.key); })
             .attr("d", line(d.values));
+
+        svg.append("text")
+            .attr("x", (legendSpace/2)+i*legendSpace) // spacing
+            .attr("y", height + (margin.bottom/2)+ 25)
+            .attr("class", "legend")
+            .style("fill", function() {
+                return d.color = color(d.key); })
+            .text(d.key);
     });
 
 	svg.append("g")
@@ -71,5 +88,6 @@ d3.json("example_weather.json", function(error, data) {
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis)
+
 
 });

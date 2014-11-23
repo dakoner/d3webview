@@ -15,6 +15,12 @@ body {
     stroke-width: 2;
 }
 
+.legend {
+    font-size: 16px;
+    font-weight: bold;
+    text-anchor: middle;
+}
+
 html, body {
     overflow:hidden;
 }
