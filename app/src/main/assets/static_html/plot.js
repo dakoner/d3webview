@@ -39,7 +39,7 @@ d3.json("foo.json", function(error, data) {
       data = data.filter(function(d) {
 	    d.date = parseDate(d.created_at);
 	    d.outside_temp = parseFloat(d.outside_temp);
-	    if (d.outside_temp > 90) return false;
+	    //if (d.outside_temp > 90) return false;
         //if (d.us_units == 0) {
 	    //    d.outside_temp = d.outside_temp * 9/5. + 32.
 	    //}
@@ -87,7 +87,5 @@ d3.json("foo.json", function(error, data) {
 
     svg.append("g")
         .attr("class", "y axis")
-        .call(yAxis)
-
-
+        .call(yAxis);
 });
