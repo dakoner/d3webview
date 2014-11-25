@@ -2,7 +2,7 @@ var margin = {top: 25, right: 15, bottom: 120, left: 30},
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 
-var parseDate = d3.time.format("%a, %d %b %Y %H:%M:%S -0000").parse;
+var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
 
 var x = d3.time.scale()
     .range([0, width]);
@@ -33,17 +33,16 @@ var svg = d3.select("body").append("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("foo.json", function(error, data) {
+d3.json("test.json", function(error, data) {
     if(error) {return console.warn(error)};
-      data = data.weatherdata;
-      data = data.filter(function(d) {
-	    d.date = parseDate(d.created_at);
+    data.forEach(function(d) {
+	    //d.date = parseDate(d.created_at);
+	    d.date = new Date(d.created_at);
 	    d.outside_temp = parseFloat(d.outside_temp);
-	    //if (d.outside_temp > 90) return false;
-        //if (d.us_units == 0) {
-	    //    d.outside_temp = d.outside_temp * 9/5. + 32.
-	    //}
-	    return true;
+    });
+    data = data.filter(function(d) {
+       if (d.outside_temp > 90) return false;
+    	    return true;
     });
 
     x.domain(d3.extent(data, function(d) { return d.date; }));
