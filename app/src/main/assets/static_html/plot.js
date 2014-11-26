@@ -2,8 +2,6 @@ var margin = {top: 25, right: 15, bottom: 120, left: 30},
     width = window.innerWidth - margin.left - margin.right,
     height = window.innerHeight - margin.top - margin.bottom;
 
-var parseDate = d3.time.format("%Y-%m-%d %H:%M:%S").parse;
-
 var x = d3.time.scale()
     .range([0, width]);
 
@@ -36,7 +34,6 @@ var svg = d3.select("body").append("svg")
 d3.json("test.json", function(error, data) {
     if(error) {return console.warn(error)};
     data.forEach(function(d) {
-	    //d.date = parseDate(d.created_at);
 	    d.date = new Date(d.created_at);
 	    d.outside_temp = parseFloat(d.outside_temp);
     });
