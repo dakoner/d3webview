@@ -31,8 +31,9 @@ var svg = d3.select("body").append("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("test.json", function(error, data) {
+d3.json("example_weather.json", function(error, data) {
     if(error) {return console.warn(error)};
+    data = data.weatherdata;
     data.forEach(function(d) {
 	    d.date = new Date(d.created_at);
 	    d.outside_temp = parseFloat(d.outside_temp);
